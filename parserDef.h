@@ -1,24 +1,26 @@
-#include<stdio.h>
 #ifndef PARSERDEF_H
 #define PARSERDEF_H
-#define LEXEME_SIZE 32
 
 #include "lexerDef.h"
 
-typedef enum{
-    TYPE_ERROR = -2,
-    TYPE_UNDEFINED = -1,
-    TYPE_INTEGER = 0,
-    TYPE_REAL = 1,
-    TYPE_BOOLEAN = 2,
-}TYPE;
+#define LEXEME_SIZE 32
+
+// Define TOKENS and NONTERMINALS based on lexerDef.h
+typedef enum {
+    // Example: if you have 214 terminals, define like this
+    TOKENS_MAX = 214
+} TOKENS;
+
+typedef enum {
+    // Example: if you have 70 non-terminals, define like this
+    NONTERMINALS_MAX = 70
+} NONTERMINALS;
 
 /* LINKED LIST STRUCTURES*/
 union NodeType {
     TOKENS terminal;
     NONTERMINALS nonterminal;
 };
-
 
 typedef struct ListNode* LISTNODE;
 struct ListNode {
@@ -35,7 +37,6 @@ struct LinkedList{
     LISTNODE head;
 };
 
-
 /*TREENODE STRUCTURE*/
 typedef struct TreeNode* TREENODE;
 
@@ -43,8 +44,6 @@ union TreeNodeData{
     LEXEME* terminal;
     NONTERMINALS nonterminal;
 };
-
-
 
 struct TreeNode{
     TREENODE child;
@@ -59,9 +58,8 @@ struct TreeNode{
     TREENODE list_addr_syn;
     TREENODE left_child;
     TREENODE right_child;
-    TYPE type;
+    int type; // Use int for type, adjust based on actual type enum
     int isArray;
-    // AST 
 };
 
 /*STACK STRUCTURE*/
@@ -73,28 +71,11 @@ struct StackNode {
     TREENODE treenode;
 };
 
-
-
 typedef struct Stack* STACK;
 
 struct Stack {
     STACKNODE top;
     short size;
 };
-
-// typedef struct ASTNode* ASTNODE;
-// struct ASTNode {
-//     AST left;
-//     AST right;
-//     AST addr_inh;
-//     AST addr_syn;
-// };
-
-// typedef union Ast* AST;
-
-// union Ast {
-//     ASTNODE astNode;
-//     TREENODE treeNode;
-// };
 
 #endif
