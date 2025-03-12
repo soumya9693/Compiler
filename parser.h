@@ -1,19 +1,15 @@
 #ifndef PARSER_H
-#define PARSER_H
+#define PARSER_h
+#include "parserDef.h"
 
-#include "lexerDef.h"
-#include <stdbool.h>
-#include <stdio.h>
-extern FILE *srcFile;
-extern char *forward;
-extern char *lexemebegin;
-extern int activeBuffer;
-extern bool exhaustedInput;
-extern bool ldfirstBuff;
-extern bool ldsecondBuff;
-extern TwinBuffer twinBuffer; // Global TwinBuffer instance
-extern keyword *kwEntries[KC];
-extern Symboltable *table;
-/*-----symboltable------*/
-void reportSyntaxError(int line, const char *message);
+TREENODE parser(char* grammarFile,char* inputFile,int size);
+void testAutomation(char* grammarFile);
+TREENODE getChildNonTerminal(int nt,TREENODE tn);
+TREENODE getChildTerminal(int nt,TREENODE tn);
+TREENODE* getDualNonTerminal(int nt,TREENODE tn);
+TREENODE* getDualTerminal(int nt,TREENODE tn);
+void inorderTraversal(TREENODE root,short goNext);
+int countParseTreeNodes(TREENODE tn, short goNext);
+int getSizePT();
+void setSizePT();
 #endif
