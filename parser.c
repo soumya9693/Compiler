@@ -1,49 +1,44 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "lexer.h"
 #include "parserDef.h"
 #include "constants.h"
+
 #define MAX 100
 
 int error = 0;
-
 int PT_SIZE = 0;
 
-/*LINKED LIST CODE*/
-
-LINKEDLIST createLinkedList(){
-    LINKEDLIST ll = (LINKEDLIST) malloc(sizeof(struct LinkedList));
+// Linked List Functions
+LINKEDLIST createLinkedList() {
+    LINKEDLIST ll = (LINKEDLIST)malloc(sizeof(struct LinkedList));
     ll->head = NULL;
     ll->size = 0;
     return ll;
 }
 
-void insertionInLinkedList(LINKEDLIST ll, short isTerminal, short ndtype, short ruleNum ){
-    // printf("Inserting in Linked List\n");
-    if(ndtype == -1) isTerminal = -1;
-    LISTNODE lstNode = (LISTNODE) malloc(sizeof(struct ListNode));
-    lstNode -> NODETYPE = (union NodeType*) malloc(sizeof(union NodeType)); 
+void insertionInLinkedList(LINKEDLIST ll, short isTerminal, short ndtype, short ruleNum) {
+    if (ndtype == -1) isTerminal = -1;
+    LISTNODE lstNode = (LISTNODE)malloc(sizeof(struct ListNode));
+    lstNode->NODETYPE = (union NodeType*)malloc(sizeof(union NodeType));
     ll->size++;
-    lstNode -> next = NULL;
+    lstNode->next = NULL;
     LISTNODE curr = ll->head;
-    if(curr == NULL){
-        ll -> head = lstNode;
-    }
-    else{
-        while(curr -> next != NULL){
+    if (curr == NULL) {
+        ll->head = lstNode;
+    } else {
+        while (curr->next != NULL) {
             curr = curr->next;
         }
         curr->next = lstNode;
     }
     lstNode->ruleNum = ruleNum;
     lstNode->isTerminal = isTerminal;
-    // printf("Now assigning value to NODETYPE\n");
-    if(isTerminal == 1){
-        lstNode -> NODETYPE -> terminal = (TOKENS)ndtype;
-    }
-    else{
-        lstNode -> NODETYPE -> nonterminal = (NONTERMINALS)ndtype;
+    if (isTerminal == 1) {
+        lstNode->NODETYPE->terminal = (TOKENS)ndtype;
+    } else {
+        lstNode->NODETYPE->nonterminal = (NONTERMINALS)ndtype;
     }
 }
 
