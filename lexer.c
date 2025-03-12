@@ -43,10 +43,13 @@ FILE *initialise(char *inputFile)
     lexemebegin = twinBuffer.buffer1;
     forward = twinBuffer.buffer1;
 
-    // initializeSymbolTable(); // Initialize symbol table
+   // Initialize symbol table
+    initializeSymbolTable(table);
 
     return srcFile;
 }
+
+
 FILE *getStream(FILE *fp)
 {
     if (exhaustedInput)
@@ -205,3 +208,122 @@ void insert(char *lexeme, terminals token) {
     }
 }
 
+// Function to create a token
+Token* createToken(terminals type, char* value, int line, int column) {
+    Token* token = (Token*)malloc(sizeof(Token));
+    token->type = type;
+    token->value = value;
+    token->line = line;
+    token->column = column;
+    return token;
+}
+
+// Function to get the next token
+Token* getNextToken() {
+    // Skip whitespace and comments
+    while (isspace(*forward) || *forward == '%') {
+        if (*forward == '%') {
+            while (*forward != '\n' && *forward != EOF) {
+                forward++;
+            }
+        } else {
+            forward++;
+        }
+    }
+
+    // Check for end of file
+    if (*forward == EOF) {
+        Token* eofToken = createToken(END_OF_INPUT, "EOF", 0, 0);
+        return eofToken;
+    }
+
+    // Handle identifiers
+    if ((*forward >= 'b' && *forward <= 'd') || (*forward >= '2' && *forward <= '7')) {
+        lexemebegin = forward;
+        while ((*forward >= 'b' && *forward <= 'd') || (*forward >= '2' && *forward <= '7')) {
+            forward++;
+        }
+        char* lexeme = (char*)malloc((forward - lexemebegin + 1) * sizeof(char));
+        strncpy(lexeme, lexemebegin, forward - lexemebegin);
+        lexeme[forward - lexemebegin] = '\0';
+        Token* token = createToken(TK_ID, lexeme, 0, 0);
+        return token;
+    }
+
+    // Handle function identifiers
+    if (*forward == '_') {
+        forward++;
+        if (isalpha(*forward)) {
+            lexemebegin = forward - 1; // Include the underscore
+            while (isalnum(*forward)) {
+                forward++;
+            }
+            char* lexeme = (char*)malloc((forward - lexemebegin + 1) * sizeof(char));
+            strncpy(lexeme, lexemebegin, forward - lexemebegin);
+            lexeme[forward - lexemebegin] = '\0';
+            Token* token = createToken(TK_FUNID, lexeme, 0, 0);
+            return token;
+        }
+    }
+
+    // Handle keywords
+    for (int i = 0; i < KC; i++) {
+        if (strncmp(forward, kwEntries[i]->keyword, strlen(kwEntries[i]->keyword)) == 0) {
+            Token* token = createToken(kwEntries[i]->token, kwEntries[i]->keyword, 0, 0);
+            forward += strlen(kwEntries[i]->keyword);
+            return token;
+        }
+    }
+
+    // Handle integers
+    if (isdigit(*forward)) {
+        lexemebegin = forward;
+        while (isdigit(*forward)) {
+            forward++;
+        }
+        char* lexeme = (char*)malloc((forward - lexemebegin + 1) * sizeof(char));
+        strncpy(lexeme, lexemebegin, forward - lexemebegin);
+        lexeme[forward - lexemebegin] = '\0';
+        Token* token = createToken(TK_NUM, lexeme, 0, 0);
+        return token;
+    }
+
+    // Handle real numbers
+    if (isdigit(*forward)) {
+        lexemebegin = forward;
+        while (isdigit(*forward)) {
+            forward++;
+        }
+        if (*forward == '.') {
+            forward++;
+            while (isdigit(*forward)) {
+                forward++;
+            }
+            char* lexeme = (char*)malloc((forward - lexemebegin + 1) * sizeof(char));
+            strncpy(lexeme, lexemebegin, forward - lexemebegin);
+            lexeme[forward - lexemebegin] = '\0';
+            Token* token = createToken(TK_RNUM, lexeme, 0, 0);
+            return token;
+        }
+    }
+
+    // Handle symbols
+    switch (*forward) {
+        case '+':
+            Token* plusToken = createToken(TK_PLUS, "+", 0, 0);
+            forward++;
+            return plusToken;
+        case '-':
+            Token* minusToken = createToken(TK_MINUS, "-", 0, 0);
+            forward++;
+            return minusToken;
+        case '*':
+            Token* mulToken = createToken(TK_MUL, "*", 0, 0);
+            forward++;
+            return mulToken;
+        case '/':
+            Token* divToken = createToken(TK_DIV, "/", 0, 0);
+            forward++;
+            return divToken;
+        case '<':
+            if (*(forward + 1) == '-' && *(forward + 2) == '-' && *(forward + 3) ==
