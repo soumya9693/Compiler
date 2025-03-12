@@ -1,81 +1,85 @@
 #include "parserDef.h"
 #include "lexerDef.h"
-#include "lexer.h" // Include the lexer header
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
-extern FILE *srcFile;
-extern char *forward;
-extern char *lexemebegin;
-extern int activeBuffer;
-extern bool exhaustedInput;
-extern bool ldfirstBuff;
-extern bool ldsecondBuff;
-extern TwinBuffer twinBuffer; 
-extern keyword *kwEntries[KC];
+// Global variables
+Token* currentToken;
 
-tokenInfo getNextToken();
-
-// Error Reporting (Centralized)
-void reportError(int lineNo, const char* message) {
-    fprintf(stderr, "Error (Line %d): %s\n", lineNo, message);
+// Function to initialize the parsing table
+void initializeParsingTable() {
+    // Populate the parsing table based on the grammar rules
+    // This step is crucial for a top-down parser
+    // For simplicity, assume a predefined parsing table structure
+    for (int i = 0; i < NUM_NON_TERMINALS; i++) {
+        for (int j = 0; j < NUM_TERMINALS; j++) {
+            // Assign actions based on the grammar rules
+            // For example:
+            if (i == PROGRAM && j == TK_MAIN) {
+                parsingTable[i][j].action = SHIFT;
+            }
+            // Add more rules as needed
+        }
+    }
 }
 
-// Error reporting function
-void reportSyntaxError(int line, const char *message) {
-    fprintf(stderr, "Line %d: Syntax Error: %s\n", line, message);
+// Function to parse the program
+void parseProgram() {
+    // Start parsing from the program non-terminal
+    parseNonTerminal(PROGRAM);
 }
 
-//Parsing
-TreeNode* program(FILE* srcFile, Symboltable *table) {
-
-    if(!srcFile) {
-        reportError(0, "null file pointer in program");
-        exit(1);
+// Function to parse a non-terminal symbol
+void parseNonTerminal(NonTerminal nonTerminal) {
+    switch (nonTerminal) {
+        case PROGRAM:
+            // Example rule: program -> mainFunction otherFunctions
+            parseMainFunction();
+            parseOtherFunctions();
+            break;
+        case MAIN_FUNCTION:
+            // Example rule: mainFunction -> _main input_par output_par stmts return_stmt
+            if (currentToken->type == TK_MAIN) {
+                consumeToken(TK_MAIN);
+                parseInputPar();
+                parseOutputPar();
+                parseStmts();
+                parseReturnStmt();
+            } else {
+                // Handle error
+                printf("Error: Expected main function\n");
+            }
+            break;
+        // Add more cases for other non-terminals
+        default:
+            printf("Error: Unknown non-terminal\n");
     }
-
-    TreeNode* new_node=(TreeNode*)malloc(sizeof(TreeNode));
-    if(!new_node) {
-        reportError(currentToken.lineNo, "memory allocation failure");
-        exit(1);
-    }
-
-    currentToken = getNextToken();
-
-    if(currentToken.token == TK_MAIN) {
-
-        strcpy(new_node->symbol,"Main-Function");
-        // Implement the parsing logic for the 'program' non-terminal
-        // and create relevant AST nodes.
-
-        --------logic is not done yet------------
-    }
-    else {
-        reportSyntaxError(currentToken.lineNo, "expected TK_MAIN");
-        exit(1);
-    }
-
-    // initializeKeywords(table);
-    // closeLexer(srcFile);
-    return new_node;
 }
 
-// Main parsing function
-TreeNode* parseInputSourceCode(FILE* srcFile) {
-    
-    // initializeLexer(srcFile); // Initialise Lexer
-    srcFile = initialise("test.txt");
-
-    if(!srcFile) {
-        reportError(0, "could not initialise and will now quit");
-        exit(1);
+// Function to consume a token
+void consumeToken(terminals expectedType) {
+    if (currentToken->type == expectedType) {
+        currentToken = getNextToken();
+    } else {
+        // Handle error
+        printf("Error: Expected token type %d, got %d\n", expectedType, currentToken->type);
     }
-   
-    table = (Symboltable *)calloc(1, sizeof(Symboltable));
-    initializeSymbolTable(table);
-
-    TreeNode* rootNode = program(srcFile, table);
-    return rootNode;
 }
 
+// Function to get the next token
+Token* getNextToken() {
+    // Call the lexer's getNextToken function
+    // This function should be implemented in lexer.c
+    // For simplicity, assume it's already implemented
+    return lexerGetNextToken();
+}
+
+int main() {
+    // Initialize the parsing table
+    initializeParsingTable();
+
+    // Start parsing
+    parseProgram();
+
+    return 0;
+}
