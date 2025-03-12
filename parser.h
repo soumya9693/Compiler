@@ -1,15 +1,14 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "grammar.h"  // Contains Grammar/Symbol definitions
+#include <stdbool.h>
+#include <stdio.h>
 
-typedef struct {
-    Set* first;
-    Set* follow;
-} FirstAndFollow;
+// Includes parserDef.h, which has token definitions and data structures
+#include "parserDef.h"
+TreeNode* parseInputSourceCode(FILE* testFile);
 
-// Public interface
-FirstAndFollow computeFirstAndFollow(Grammar G);
-ParseTree parseInputSource(FILE* source);
 
+// Error reporting function (prototype)
+void reportSyntaxError(int line, const char *message);
 #endif
