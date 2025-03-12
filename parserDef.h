@@ -1,83 +1,54 @@
 #ifndef PARSERDEF_H
 #define PARSERDEF_H
 
-#include <stdbool.h>
+#include "lexerDef.h"
 #include <stdio.h>
+#include <stdbool.h>
 
-// Token definition
+// Non-terminal symbols
 typedef enum {
-    TK_GT, TK_LT, TK_ASSIGNOP, TK_COMMENT, TK_EQ, TK_PLUS, TK_NE, TK_LE, TK_GE, 
-    TK_SQR, TK_SQL, TK_OR, TK_NOT, TK_AND, TK_ID, TK_FIELDID, TK_DIV, TK_MUL, 
-    TK_MINUS, TK_FUNID, TK_DOT, TK_CL, TK_OP, TK_COLON, TK_SEM, TK_RUID, 
-    TK_COMMA, TK_NUM, TK_RNUM, TK_MAIN, TK_AS, TK_CALL, TK_DEFINETYPE, 
-    TK_ELSE, TK_END, TK_ENDIF, TK_ENDWHILE, TK_ENDRECORD, TK_ENDUNION, 
-    TK_GLOBAL, TK_IF, TK_INPUT, TK_OUTPUT, TK_INT, TK_REAL, TK_LIST, 
-    TK_PARAMETERS, TK_PARAMETER, TK_READ, TK_WRITE, TK_RECORD, TK_UNION, 
-    TK_RETURN, TK_THEN, TK_TYPE, TK_WHILE, TK_WITH, EPS, END_OF_INPUT
-} terminals;
+    PROGRAM, MAIN_FUNCTION, OTHER_FUNCTIONS, FUNCTION, INPUT_PAR, OUTPUT_PAR, PARAMETER_LIST, DATA_TYPE,
+    PRIMITIVE_DATATYPE, CONSTRUCTED_DATATYPE, A, STMTS, REMAINING_LIST, TYPE_DEFINITIONS, TYPE_DEFINITION,
+    FIELD_DEFINITIONS, FIELD_DEFINITION, FIELDTYPE, MORE_FIELDS, DECLARATIONS, DECLARATION,
+    GLOBAL_OR_NOT, OTHER_STMTS, STMT, ASSIGNMENT_STMT, SINGLE_OR_REC_ID, OPTION_SINGLE_CONSTRUCTED,
+    ONE_EXPANSION, MORE_EXPANSIONS, FUN_CALL_STMT, OUTPUT_PARAMETERS, INPUT_PARAMETERS, ITERATIVE_STMT,
+    CONDITIONAL_STMT, ELSE_PART, IO_STMT, ARITHMETIC_EXPRESSION, EXP_PRIME, TERM, TERM_PRIME, FACTOR,
+    HIGH_PRECEDENCE_OPERATORS, LOW_PRECEDENCE_OPERATORS, BOOLEAN_EXPRESSION, VAR, LOGICAL_OP, RELATIONAL_OP,
+    RETURN_STMT, OPTIONAL_RETURN, ID_LIST, MORE_IDS, DEFINETYPE_STMT
+} NonTerminal;
 
-// Structure to hold token information 
+// Production rules
+// Define the production rules as a set of functions or structures
+// For example, you can use a struct to represent a production rule
 typedef struct {
-    terminals token;
-    int lineNo;
-    union {
-        char* str;   
-        int intVal;   
-        float floatVal;
-    } attribute;
-} tokenInfo;
+    NonTerminal lhs; // Left-hand side non-terminal
+    int rhsSize;     // Size of the right-hand side
+    int* rhs;        // Array of right-hand side symbols (terminals and non-terminals)
+} ProductionRule;
 
-// Forward declaration of Symboltable 
-typedef struct Symboltable Symboltable;
+// Define the number of production rules
+#define NUM_PRODUCTION_RULES 50
 
-// Structure for SymbolTableitem
-typedef struct SymbolTableitem {
-    char *lexeme;
-    terminals token;
-    char *type;
-    union {
-        int intVal;
-        float floatVal;
-    } value;
-    int lineCount;
-    int scopeLevel;
-    int startPos;
-    int endPos;
-    char **parameter;
-    char *returnType;
-    struct Field *fields;
-    struct SymbolTableitem *next;
-} SymbolTableitem;
+// Define the production rules array
+extern ProductionRule productionRules[NUM_PRODUCTION_RULES];
 
-// Forward declaration of Field (used in SymbolTableitem)
-typedef struct Field Field;
+// Parsing table
+// Define a parsing table structure
+typedef struct {
+    NonTerminal nonTerminal;
+    terminals terminal;
+    int action; // Action to take (e.g., shift, reduce, accept)
+} ParsingTableEntry;
 
-// Structure for Field (needed to complete SymbolTableitem definition)
-struct Field {
-    char *fieldname;
-    char *fieldtype;
-    struct Field *next;
-};
+// Define the parsing table
+extern ParsingTableEntry parsingTable[NUM_NON_TERMINALS][NUM_TERMINALS];
 
-// Grammar-related structures 
-typedef struct TreeNode {
-    char* symbol;          
-    tokenInfo token;       
-    struct TreeNode* children[10];  
-    int numChildren;
-} TreeNode;
+// Define the number of non-terminals and terminals
+#define NUM_NON_TERMINALS 50
+#define NUM_TERMINALS N_TC
 
-// Function prototypes (to be implemented in parser.c)
-TreeNode* program(FILE* srcFile, Symboltable *table); 
-void initializeSymbolTable(Symboltable *table);
-int CalHash(char *lexeme);
-bool lookup(char *lexeme, Symboltable *table);
-void insert(char *lexeme, terminals token, Symboltable *table);
+// Function prototypes
+void initializeParsingTable();
+void parseProgram();
 
-// Global Error
-void reportError(int lineNo, const char* message);
-
-// Error reporting function (prototype)
-void reportSyntaxError(int line, const char *message);
-
-#endif /* PARSERDEF_H */
+#endif // PARSERDEF_H
