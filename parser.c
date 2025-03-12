@@ -187,16 +187,16 @@ LISTNODE* addRules(char* fname){
 /*PARSE TREE LOGIC*/
 
 
-TREENODE createRootNode(LISTNODE ln){
-    TREENODE root = (TREENODE) malloc(sizeof(struct TreeNode));
-    PT_SIZE+=sizeof(struct TreeNode);
+TREENODE createRootNode(LISTNODE ln) {
+    TREENODE root = (TREENODE)malloc(sizeof(struct TreeNode));
+    PT_SIZE += sizeof(struct TreeNode);
     root->child = NULL;
     root->next = NULL;
     root->isTerminal = 0;
-    root->TREENODEDATA = (union TreeNodeData*) malloc(sizeof(union TreeNodeData));
-    PT_SIZE +=sizeof(union TreeNodeData);
+    root->TREENODEDATA = (union TreeNodeData*)malloc(sizeof(union TreeNodeData));
+    PT_SIZE += sizeof(union TreeNodeData);
     root->parent = NULL;
-    if(ln->isTerminal == 0){
+    if (ln->isTerminal == 0) {
         root->TREENODEDATA->nonterminal = ln->NODETYPE->nonterminal;
     }
     return root;
@@ -333,34 +333,33 @@ int countParseTreeNodes(TREENODE tn, short goNext){
 
 /*STACK ADT LOGIC*/
 
-STACK createStack(){
-    STACK st = (STACK) malloc(sizeof(struct Stack));
-    st -> top = NULL;
-    st -> size = 0;
-    return st; 
+STACK createStack() {
+    STACK st = (STACK)malloc(sizeof(struct Stack));
+    st->top = NULL;
+    st->size = 0;
+    return st;
 }
 
-void pushInStack(STACK st,LISTNODE node,TREENODE tn,short pushChild){
-    if(node == NULL) return;
+void pushInStack(STACK st, LISTNODE node, TREENODE tn, short pushChild) {
+    if (node == NULL) return;
 
-    STACKNODE newTop = (STACKNODE) malloc(sizeof(struct StackNode));
+    STACKNODE newTop = (STACKNODE)malloc(sizeof(struct StackNode));
 
     TREENODE treenode;
-    if(pushChild == 1){
-        treenode = insertChildTree(tn,node);
-    }
-    else{
-        treenode = insertNextTree(tn,node);
+    if (pushChild == 1) {
+        treenode = insertChildTree(tn, node);
+    } else {
+        treenode = insertNextTree(tn, node);
     }
 
-    newTop -> next = NULL;
-    newTop -> NODETYPE = node -> NODETYPE;
-    newTop -> isTerminal = node -> isTerminal;
-    pushInStack(st,node->next,treenode,0);
-    newTop -> treenode = treenode;
-    newTop -> next = st -> top;
-    st -> top = newTop;
-    ++st -> size;
+    newTop->next = NULL;
+    newTop->NODETYPE = node->NODETYPE;
+    newTop->isTerminal = node->isTerminal;
+    pushInStack(st, node->next, treenode, 0);
+    newTop->treenode = treenode;
+    newTop->next = st->top;
+    st->top = newTop;
+    ++st->size;
 }
 
 short isStackEmpty(STACK st){
@@ -655,108 +654,80 @@ int inSyncSet(int terminal,int nonterminal){
 
 /*PARSE TABLE LOGIC*/
 
-short PARSETABLE[70][214];
-
-void fillParseTable(){
-    for(short int i=0; i<70; i++){
-        for(short int j=0; j<214; j++){
+void fillParseTable() {
+    for (short int i = 0; i < 70; i++) {
+        for (short int j = 0; j < 214; j++) {
             PARSETABLE[i][j] = -1;
         }
     }
 }
 
-void populateParseTable(LISTNODE* RULES){
+void populateParseTable(LISTNODE* RULES) {
     fillParseTable();
     automateFirstandFollow(RULES);
-    
+
     short int numRules = 129;
-    for(short int i = 0;i<numRules;i++){
+    for (short int i = 0; i < numRules; i++) {
         LISTNODE head = RULES[i];
-        short int row = head -> NODETYPE -> nonterminal;
+        short int row = head->NODETYPE->nonterminal;
         short int size = FIRSTANDFOLLOWSETS[i][0];
-        for(short int j = 1;j <= size;j++){
+        for (short int j = 1; j <= size; j++) {
             short int col = FIRSTANDFOLLOWSETS[i][j];
             PARSETABLE[row][col] = i;
         }
     }
 }
 
-
 /*ERROR HANDLING IS PARSER*/
 
 
-LEXEME* errorHandling(STACK st,LEXEME* lex,short type,STACKNODE stNode,TwinBuffer* TB){
-
-
-    printf("\n \x1B[1m\033[31m PARSING ERROR At line %d, ",lex->lineNo);
+LEXEME* errorHandling(STACK st, LEXEME* lex, short type, STACKNODE stNode, TwinBuffer* TB) {
+    printf("\n \x1B[1m\033[31m PARSING ERROR At line %d, ", lex->lineNo);
     error = 1;
-    if(type == 1){
-        printf("PARSER GOT INVALID TOKEN \"%s\" , EXPECTED \"%s\"",TERMINALS_STRINGS[lex->token],TERMINALS_STRINGS[stNode->NODETYPE->terminal]);
-        
-
+    if (type == 1) {
+        printf("PARSER GOT INVALID TOKEN \"%s\" , EXPECTED \"%s\"", TERMINALS_STRINGS[lex->token], TERMINALS_STRINGS[stNode->NODETYPE->terminal]);
     }
-    if(type == 2){
-        printf("PARSER GOT INVALID TOKEN \"%s\" , CAN NOT BE DERIVED USING %s",TERMINALS_STRINGS[lex->token],NONTERMINALS_STRINGS[stNode->NODETYPE->nonterminal]);
+    if (type == 2) {
+        printf("PARSER GOT INVALID TOKEN \"%s\" , CAN NOT BE DERIVED USING %s", TERMINALS_STRINGS[lex->token], NONTERMINALS_STRINGS[stNode->NODETYPE->nonterminal]);
     }
-    if(type == 4){
-        printf("INPUT IS YET TO BE PROCESSED \"%s\" ",TERMINALS_STRINGS[lex->token]);
-
-
+    if (type == 4) {
+        printf("INPUT IS YET TO BE PROCESSED \"%s\" ", TERMINALS_STRINGS[lex->token]);
     }
     printf("\033[0m\033[0m\n\n");
-    while(!isStackEmpty(st) && st->top->isTerminal == 1){
+    while (!isStackEmpty(st) && st->top->isTerminal == 1) {
         popFromStack(st);
     }
-    if(isStackEmpty(st) == 1){
+    if (isStackEmpty(st) == 1) {
         return lex;
     }
     stNode = st->top;
-    // printf("NonTerminal now = %s\n",NONTERMINALS_STRINGS[stNode->NODETYPE->nonterminal]);
-    while(!inSyncSet(lex->token,stNode->NODETYPE->nonterminal)) {
-        lex=simulateDFA(TB,0);
-        if(lex->token == EOF_TOKEN) return lex;
+    while (!inSyncSet(lex->token, stNode->NODETYPE->nonterminal)) {
+        lex = simulateDFA(TB, 0);
+        if (lex->token == EOF_TOKEN) return lex;
     }
-    if(lex->token == SEMICOL_OPERATOR){
-        lex = simulateDFA(TB,0);
+    if (lex->token == SEMICOL_OPERATOR) {
+        lex = simulateDFA(TB, 0);
     }
-    // printf("    \x1B[1m \033[032mERROR RECOVERY DONE\033[0m\033[0m\n");
-    if(PARSETABLE[stNode->NODETYPE->nonterminal][lex->token] == -1){
+    if (PARSETABLE[stNode->NODETYPE->nonterminal][lex->token] == -1) {
         popFromStack(st);
     }
     return lex;
-
 }
-
-int getSizePT(){
-    return PT_SIZE;
-}
-
-void setSizePT(){
-    PT_SIZE = 0;
-}
-
 
 /*PARSER CODE*/
-
-TREENODE parser(char* grammarFile,char* inputFile, int size){
-    short int line = 0;
+REENODE parser(char* grammarFile, char* inputFile, int size) {
     LISTNODE* RULES = addRules(grammarFile);
-    // printRules(129,RULES);
-    // printf("RULES ADDED\n");
-    RULES[0]->NODETYPE->nonterminal;
     populateParseTable(RULES);
-    // printf("\nPARSE TABLE POPULATED\n");
     TwinBuffer* TB = initializeTwinBuffer(inputFile, size);
-    // printf("\nTWIN BUFFER INITIALIZED\n");
     STACK st = createStack();
-    // printf("\nSTACK CREATED\n");
     TREENODE root = createRootNode(RULES[0]);
-    pushInStack(st,RULES[0]->next,root,1);
-    LEXEME* lex = simulateDFA(TB,0);
+    pushInStack(st, RULES[0]->next, root, 1);
+    LEXEME* lex = simulateDFA(TB, 0);
     STACKNODE stNode;
     short canContinue = 0;
-    while(st->size > 0){
+    while (st->size > 0) {
         stNode = popFromStack(st);
+
         /* Checking for the terminal */
 
         if(stNode->isTerminal == 1){
