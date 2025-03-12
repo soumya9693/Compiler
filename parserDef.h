@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-// Token definitions 
+// Token definition
 typedef enum {
     TK_GT, TK_LT, TK_ASSIGNOP, TK_COMMENT, TK_EQ, TK_PLUS, TK_NE, TK_LE, TK_GE, 
     TK_SQR, TK_SQL, TK_OR, TK_NOT, TK_AND, TK_ID, TK_FIELDID, TK_DIV, TK_MUL, 
@@ -16,18 +16,21 @@ typedef enum {
     TK_RETURN, TK_THEN, TK_TYPE, TK_WHILE, TK_WITH, EPS, END_OF_INPUT
 } terminals;
 
-// Structure to hold token information
+// Structure to hold token information 
 typedef struct {
     terminals token;
     int lineNo;
     union {
-        char* str;    
-        int intVal;  
+        char* str;   
+        int intVal;   
         float floatVal;
     } attribute;
 } tokenInfo;
 
-// Symbol structure 
+// Forward declaration of Symboltable 
+typedef struct Symboltable Symboltable;
+
+// Structure for SymbolTableitem
 typedef struct SymbolTableitem {
     char *lexeme;
     terminals token;
@@ -46,19 +49,33 @@ typedef struct SymbolTableitem {
     struct SymbolTableitem *next;
 } SymbolTableitem;
 
-// Forward declaration of struct Field 
+// Forward declaration of Field (used in SymbolTableitem)
 typedef struct Field Field;
+
+// Structure for Field (needed to complete SymbolTableitem definition)
+struct Field {
+    char *fieldname;
+    char *fieldtype;
+    struct Field *next;
+};
 
 // Grammar-related structures 
 typedef struct TreeNode {
     char* symbol;          
-    tokenInfo token;        
+    tokenInfo token;       
     struct TreeNode* children[10];  
     int numChildren;
 } TreeNode;
 
 // Function prototypes (to be implemented in parser.c)
-TreeNode* parseInputSourceCode(FILE* testFile); // Main parsing function
+TreeNode* program(FILE* srcFile, Symboltable *table); 
+void initializeSymbolTable(Symboltable *table);
+int CalHash(char *lexeme);
+bool lookup(char *lexeme, Symboltable *table);
+void insert(char *lexeme, terminals token, Symboltable *table);
+
+// Global Error
+void reportError(int lineNo, const char* message);
 
 // Error reporting function (prototype)
 void reportSyntaxError(int line, const char *message);
