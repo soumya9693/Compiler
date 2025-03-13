@@ -6,84 +6,60 @@
 
 #define LEXEME_SIZE = 256
 
-typedef enum{
-    TYPE_ERROR = ,
-    TYPE_UNDEFINED = ,
-    TYPE_INTEGER = ,
-    TYPE_REAL = ,
-    TYPE_BOOLEAN = ,
-}TYPE;
+// Define structures for FIRST and FOLLOW sets
+typedef struct {
+    char **first;
+    char **follow;
+} FirstAndFollow;
 
-// Define TOKENS and NONTERMINALS based on lexerDef.h
-typedef enum {
- 
-} TOKENS;
+// Define structure for a grammar rule
+typedef struct GrammarRule {
+    char *lhs; // Left-hand side non-terminal
+    char **rhs; // Right-hand side terminals/non-terminals
+    int rhsSize; // Size of the RHS array
+} GrammarRule;
 
-typedef enum {
-    
-    NONTERMINALS_MAX = 
-} NONTERMINALS;
 
-/* LINKED LIST STRUCTURES*/
-union NodeType {
-    TOKENS terminal;
-    NONTERMINALS nonterminal;
-};
+// Define structure for the grammar
+typedef struct Grammar {
+    GrammarRule *rules;
+    int numRules; // Number of rules in the grammar
+} Grammar;
 
-typedef struct ListNode* NodePointer;
-struct ListNode {
-    short ruleNumber;
-    NodePointer nextNode;
-    union NodeType* nodeType;
-    short isTerminalNode;
-};
 
-typedef struct LinkedList* NodeList;
+// Define structure for a parse table entry
+typedef struct ParseTableEntry {
+    char *lhs; // Left-hand side non-terminal
+    char **rhs; // Right-hand side terminals/non-terminals
+} ParseTableEntry;
 
-struct LinkedList{
-    short listSize;
-    LISTNODE listHead;
-};
+// Define structure for the parse table
+typedef struct ParseTable {
+    ParseTableEntry **entries; // Array of parse table entries
+    int rows; // Number of rows in the table
+    int cols; // Number of columns in the table
+} ParseTable;
 
-/*TREENODE STRUCTURE*/
-typedef struct TreeNode* Node;
 
-union TreeNodeData{
-    LEXEME* terminal;
-    NONTERMINALS nonterminal;
-};
+// Define structure for a node in the parse tree
+typedef struct ParseTreeNode {
+    char *lexeme; // Lexeme of the node (if leaf)
+    int lineno; // Line number of the node
+    char *tokenName; // Token name of the node
+    double value; // Value if the node is a number
+    char *parentNodeSymbol; // Parent node symbol
+    int isLeafNode; // Whether the node is a leaf node
+    char *nodeSymbol; // Symbol of the current node
+    struct ParseTreeNode *children; // Array of child nodes
+    int numChildren; // Number of child nodes
+} ParseTreeNode;
 
-struct TreeNode{
-    Node childNode;
-    Node nextNode;
-    Node parentNode;
-    union TreeNodeData* nodeData;
-    short isTerminalNode;
-    short ruleNumber;
-    Node address;
-    Node synthesizedAddress;
-    Node inheritedAddress;
-    Node synthesizedListAddress;
-    Node leftChild;
-    Node rightChild;
-    int nodeType; 
-    int isNodeArray;
-};
 
-/*STACK STRUCTURE*/
-typedef struct StackNode* StackNodePointer;
-struct StackNode {
-    StackNodePointer nextNode;
-    union NodeType* nodeType;
-    short isTerminalNode;
-    Node treeNode;
-};
 
-typedef struct Stack* StackPointer;
 
-struct Stack {
-    STACKNODE StackTop;
-    short stackSize;
-};
+// Define structure for the parse tree
+typedef struct ParseTree {
+    ParseTreeNode *root; // Root node of the parse tree
+} ParseTree;
 
-#endif
+#endif // PARSERDEF_H
