@@ -243,52 +243,6 @@ int countNodesInParseTree(TREENODE tn, short goNext){
 }
 
 
-/*STACK ADT LOGIC*/
-
-STACK createParserStack() {
-    STACK st = (STACK)malloc(sizeof(struct Stack));
-    st->top = NULL;
-    st->size = 0;
-    return st;
-}
-
-void pushOntoParserStack(STACK st, LISTNODE node, TREENODE tn, short pushChild) {
-    if (node == NULL) return;
-
-    STACKNODE newTop = (STACKNODE)malloc(sizeof(struct StackNode));
-
-    TREENODE treenode;
-    if (pushChild == 1) {
-        treenode = insertChildTree(tn, node);
-    } else {
-        treenode = insertNextTree(tn, node);
-    }
-
-    newTop->next = NULL;
-    newTop->NODETYPE = node->NODETYPE;
-    newTop->isTerminal = node->isTerminal;
-    pushInStack(st, node->next, treenode, 0);
-    newTop->treenode = treenode;
-    newTop->next = st->top;
-    st->top = newTop;
-    ++st->size;
-}
-
-short isParserStackEmpty(STACK st){
-    return st->size == 0;
-}
-
-STACKNODE popFromParserStack(STACK st){
-    if(isStackEmpty(st)){
-        printf("Stack Underflow\n");
-        return NULL;
-    }
-    STACKNODE currTop = st->top;
-    st->top = currTop->next;
-    currTop->next = NULL;
-    st->size --;
-    return currTop;
-}
 
 
 
@@ -324,10 +278,7 @@ int check(int i, int val)
 
 void computeFollowSet(int numRules, LISTNODE *RULES, int i, int *vis1)
 {
-    // if (vis1[i] == 1)
-    //     return;
-    // printf("follow for %d \n", i);
-    // vis1[i] = 1;
+    
 
     for (int j = 0; j < numRules; j++)
     {
