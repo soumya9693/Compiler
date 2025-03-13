@@ -1,19 +1,27 @@
+#include<stdio.h>
 #ifndef PARSERDEF_H
 #define PARSERDEF_H
 
 #include "lexerDef.h"
 
-#define LEXEME_SIZE 32
+#define LEXEME_SIZE =
+
+typedef enum{
+    TYPE_ERROR = ,
+    TYPE_UNDEFINED = ,
+    TYPE_INTEGER = ,
+    TYPE_REAL = ,
+    TYPE_BOOLEAN = ,
+}TYPE;
 
 // Define TOKENS and NONTERMINALS based on lexerDef.h
 typedef enum {
-    // Example: if you have 214 terminals, define like this
-    TOKENS_MAX = 214
+ 
 } TOKENS;
 
 typedef enum {
-    // Example: if you have 70 non-terminals, define like this
-    NONTERMINALS_MAX = 70
+    
+    NONTERMINALS_MAX = 
 } NONTERMINALS;
 
 /* LINKED LIST STRUCTURES*/
@@ -22,23 +30,23 @@ union NodeType {
     NONTERMINALS nonterminal;
 };
 
-typedef struct ListNode* LISTNODE;
+typedef struct ListNode* NodePointer;
 struct ListNode {
-    short ruleNum;
-    LISTNODE next;
-    union NodeType* NODETYPE;
-    short isTerminal;
+    short ruleNumber;
+    NodePointer nextNode;
+    union NodeType* nodeType;
+    short isTerminalNode;
 };
 
-typedef struct LinkedList* LINKEDLIST;
+typedef struct LinkedList* NodeList;
 
 struct LinkedList{
-    short size;
-    LISTNODE head;
+    short listSize;
+    LISTNODE listHead;
 };
 
 /*TREENODE STRUCTURE*/
-typedef struct TreeNode* TREENODE;
+typedef struct TreeNode* Node;
 
 union TreeNodeData{
     LEXEME* terminal;
@@ -46,36 +54,36 @@ union TreeNodeData{
 };
 
 struct TreeNode{
-    TREENODE child;
-    TREENODE next;
-    TREENODE parent;
-    union TreeNodeData* TREENODEDATA;
-    short isTerminal;
-    short ruleNum;
-    TREENODE addr;
-    TREENODE addr_syn;
-    TREENODE addr_inh;
-    TREENODE list_addr_syn;
-    TREENODE left_child;
-    TREENODE right_child;
-    int type; // Use int for type, adjust based on actual type enum
-    int isArray;
+    Node childNode;
+    Node nextNode;
+    Node parentNode;
+    union TreeNodeData* nodeData;
+    short isTerminalNode;
+    short ruleNumber;
+    Node address;
+    Node synthesizedAddress;
+    Node inheritedAddress;
+    Node synthesizedListAddress;
+    Node leftChild;
+    Node rightChild;
+    int nodeType; 
+    int isNodeArray;
 };
 
 /*STACK STRUCTURE*/
-typedef struct StackNode* STACKNODE;
+typedef struct StackNode* StackNodePointer;
 struct StackNode {
-    STACKNODE next;
-    union NodeType* NODETYPE;
-    short isTerminal;
-    TREENODE treenode;
+    StackNodePointer nextNode;
+    union NodeType* nodeType;
+    short isTerminalNode;
+    Node treeNode;
 };
 
-typedef struct Stack* STACK;
+typedef struct Stack* StackPointer;
 
 struct Stack {
-    STACKNODE top;
-    short size;
+    STACKNODE StackTop;
+    short stackSize;
 };
 
 #endif
