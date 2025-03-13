@@ -7,45 +7,45 @@
 
 #define MAX 100
 
-int error = 0;
-int PT_SIZE = 0;
+int hasError = 0;
+int parseTreeSIZE = 0;
 
 // Linked List Functions
-LINKEDLIST createLinkedList() {
-    LINKEDLIST ll = (LINKEDLIST)malloc(sizeof(struct LinkedList));
-    ll->head = NULL;
-    ll->size = 0;
-    return ll;
+LINKEDLIST createNodeList() {
+    LINKEDLIST linkedList = (LINKEDLIST)malloc(sizeof(struct LinkedList));
+    linkedList->head = NULL;
+    linkedList->size = 0;
+    return linkedList;
 }
 
-void insertionInLinkedList(LINKEDLIST ll, short isTerminal, short ndtype, short ruleNum) {
-    if (ndtype == -1) isTerminal = -1;
-    LISTNODE lstNode = (LISTNODE)malloc(sizeof(struct ListNode));
-    lstNode->NODETYPE = (union NodeType*)malloc(sizeof(union NodeType));
-    ll->size++;
-    lstNode->next = NULL;
-    LISTNODE curr = ll->head;
-    if (curr == NULL) {
-        ll->head = lstNode;
+void insertionInNodeList(LINKEDLIST linkedList, short isTerminalNode, short nodeDataType, short ruleNumber) {
+    if (nodeDataType == -1) isTerminal = -1;
+    LISTNODE listNode = (LISTNODE)malloc(sizeof(struct ListNode));
+    listNode->NODETYPE = (union NodeType*)malloc(sizeof(union NodeType));
+    linkedList->size++;
+    listNode->next = NULL;
+    LISTNODE current = linkedList->head;
+    if (current == NULL) {
+        linkedList->head = listNode;
     } else {
-        while (curr->next != NULL) {
-            curr = curr->next;
+        while (current->next != NULL) {
+            current = current->next;
         }
-        curr->next = lstNode;
+        current->next = listNode;
     }
-    lstNode->ruleNum = ruleNum;
-    lstNode->isTerminal = isTerminal;
-    if (isTerminal == 1) {
-        lstNode->NODETYPE->terminal = (TOKENS)ndtype;
+    listNode->ruleNumber = ruleNumber;
+    listNode->isTerminalNode = isTerminalNode;
+    if (isTerminalNode == 1) {
+        listNode->NODETYPE->terminal = (TOKENS)nodeDataType;
     } else {
-        lstNode->NODETYPE->nonterminal = (NONTERMINALS)ndtype;
+        listNode->NODETYPE->nonterminal = (NONTERMINALS)nodeDataType;
     }
 }
 
 
 /*READING RULES FROM CSV*/
 
-short countCols(FILE *fp){
+short countColumns(FILE *fp){
     char character = ' ';
     short count = 0;
     while(character != '\n' && character != EOF && character != '\0'){
@@ -56,7 +56,7 @@ short countCols(FILE *fp){
     return count;
 }
 
-short countRows(FILE *fp){
+short countRowsInFile(FILE *fp){
     char character = ' ';
     short count = 1;
     while(character != EOF && character != '\0'){
@@ -68,7 +68,7 @@ short countRows(FILE *fp){
 }
 
 /* Reads a line of csv file that is passed as fp */
-char **csvReader(FILE *fp) {
+char **readCsvRow(FILE *fp) {
     char line[MAX];
     char *token;
     char **csv_data;
@@ -103,7 +103,7 @@ char **csvReader(FILE *fp) {
 /*GRAMMAR RULES LOGIC*/
 
 
-short int checkTerminal(char* string){
+short int isTerminalSymbol(char* string){
     for(short int i = 0;i<214;i++){
         if(strcmp(string,TERMINALS_STRINGS[i]) == 0){
             return 1;
@@ -113,7 +113,7 @@ short int checkTerminal(char* string){
 }
 
 
-short int getType(char* string,short int type){
+short int getNodeDataType(char* string,short int type){
     if(type == 1){
         for(short int i = 0;i<214;i++){
             if(strcmp(string,TERMINALS_STRINGS[i]) == 0){
@@ -135,7 +135,7 @@ ruleNum:int => Number of rule as per the grammar
 strings[]:char* => The rule is form of array
 num:int => Number of strings in the rule
 */
-void addRule(short int ruleNum,char** strings,short int num,LISTNODE* RULES){
+void addGrammarRule(short int ruleNum,char** strings,short int num,LISTNODE* RULES){
     LINKEDLIST ll = createLinkedList();
     for(short int i = 0;i < num;i++){
         if(strings[i] == (char*)NULL) break;
@@ -148,7 +148,7 @@ void addRule(short int ruleNum,char** strings,short int num,LISTNODE* RULES){
 }
 
 
-void printRules(short int numRules, LISTNODE* RULES){
+void displayGrammarRules(short int numRules, LISTNODE* RULES){
     for(short int i = 0;i < numRules;i++){
         LISTNODE curr = RULES[i];
         while(curr != NULL){
@@ -167,7 +167,7 @@ void printRules(short int numRules, LISTNODE* RULES){
 }
 
 
-LISTNODE* addRules(char* fname){
+LISTNODE* addGrammarRule(char* fname){
     short int ruleNum = 0;
     FILE* fp = fopen(fname,"r");
     LISTNODE* RULES = (LISTNODE*) malloc(129*sizeof(LISTNODE));
@@ -187,7 +187,7 @@ LISTNODE* addRules(char* fname){
 /*PARSE TREE LOGIC*/
 
 
-TREENODE createRootNode(LISTNODE ln) {
+TREENODE createRootTreeNode(LISTNODE ln) {
     TREENODE root = (TREENODE)malloc(sizeof(struct TreeNode));
     PT_SIZE += sizeof(struct TreeNode);
     root->child = NULL;
@@ -202,7 +202,7 @@ TREENODE createRootNode(LISTNODE ln) {
     return root;
 }
 
-TREENODE insertChildTree(TREENODE tn, LISTNODE ln){
+TREENODE insertChildTreeNode(TREENODE tn, LISTNODE ln){
     TREENODE childHead = (TREENODE) malloc(sizeof(struct TreeNode));
     PT_SIZE+=sizeof(struct TreeNode);
     tn->child = childHead;
@@ -232,7 +232,7 @@ TREENODE insertChildTree(TREENODE tn, LISTNODE ln){
     return childHead;
 }
 
-TREENODE insertNextTree(TREENODE tn, LISTNODE ln){
+TREENODE insertNextTreeNode(TREENODE tn, LISTNODE ln){
     TREENODE nextNode = (TREENODE) malloc(sizeof(struct TreeNode));
     PT_SIZE += sizeof(struct TreeNode);
     tn->next = nextNode;
@@ -260,7 +260,7 @@ TREENODE insertNextTree(TREENODE tn, LISTNODE ln){
     return nextNode;
 }
 
-void treeNodePrint(TREENODE node){
+void printTreeNode(TREENODE node){
     if(node == NULL) printf("NODE IS NULL\n\n");
     else if(node->TREENODEDATA->terminal->token == NUM_TOKEN) printf("%d  ",node->TREENODEDATA->terminal->lexemedata->intData);
     else if(node->TREENODEDATA->terminal->token == RNUM_TOKEN) printf("%f  ",node->TREENODEDATA->terminal->lexemedata->floatData);
@@ -268,7 +268,7 @@ void treeNodePrint(TREENODE node){
     else printf("%s  ",node->TREENODEDATA->terminal->lexemedata->data);
 }
 
-void inorderTraversal(TREENODE tn, short goNext){
+void traverseTreeInOrder(TREENODE tn, short goNext){
     if(tn == NULL) return;
     inorderTraversal(tn->child,0);
     if(tn->isTerminal == 1){
@@ -315,7 +315,7 @@ void inorderTraversal(TREENODE tn, short goNext){
     
 }
 
-int countParseTreeNodes(TREENODE tn, short goNext){
+int countNodesInParseTree(TREENODE tn, short goNext){
     int sum = 0;
     if(tn == NULL) return 0 ;
     sum += countParseTreeNodes(tn->child,0);
@@ -333,14 +333,14 @@ int countParseTreeNodes(TREENODE tn, short goNext){
 
 /*STACK ADT LOGIC*/
 
-STACK createStack() {
+STACK createParserStack() {
     STACK st = (STACK)malloc(sizeof(struct Stack));
     st->top = NULL;
     st->size = 0;
     return st;
 }
 
-void pushInStack(STACK st, LISTNODE node, TREENODE tn, short pushChild) {
+void pushOntoParserStack(STACK st, LISTNODE node, TREENODE tn, short pushChild) {
     if (node == NULL) return;
 
     STACKNODE newTop = (STACKNODE)malloc(sizeof(struct StackNode));
@@ -362,11 +362,11 @@ void pushInStack(STACK st, LISTNODE node, TREENODE tn, short pushChild) {
     ++st->size;
 }
 
-short isStackEmpty(STACK st){
+short isParserStackEmpty(STACK st){
     return st->size == 0;
 }
 
-STACKNODE popFromStack(STACK st){
+STACKNODE popFromParserStack(STACK st){
     if(isStackEmpty(st)){
         printf("Stack Underflow\n");
         return NULL;
@@ -410,7 +410,7 @@ int check(int i, int val)
     return 1;
 }
 
-void follow(int numRules, LISTNODE *RULES, int i, int *vis1)
+void computeFollowSet(int numRules, LISTNODE *RULES, int i, int *vis1)
 {
     // if (vis1[i] == 1)
     //     return;
