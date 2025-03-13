@@ -4,7 +4,7 @@
 
 #include "lexerDef.h"
 
-#define LEXEME_SIZE =
+#define LEXEME_SIZE = 256
 
 typedef enum{
     TYPE_ERROR = ,
