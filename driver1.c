@@ -1,18 +1,3 @@
-/* 
-    Group Number: Group_01
-    Team Members:
-      - 2019001: Alice Example
-      - 2019002: Bob Example
-      - 2019003: Charlie Example
-
-    Submission Guidelines:
-      1. Submit a zip file named as group_01.zip containing all required files.
-      2. Ensure no plagiarized code is submitted.
-      3. Do not change the file names (e.g., makefile, grammar.txt, etc.).
-      4. Do not include any subfolders inside the group folder.
-      5. Use one of the team member's Nalanda account for submission.
-      6. Follow all other instructions provided in the assignment.
-*/
 
 #include <stdio.h>
 #include <stdlib.h>
